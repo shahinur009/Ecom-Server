@@ -272,57 +272,65 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
         });
       }
     });
-    // place order:
-    app.post("/place-order", async (req, res) => {
-      console.log("Request received at /create-order");
 
-      const {
-        customerName,
-        phone,
-        address,
-        productName,
-        productPrice,
-        quantity,
-        courierFee,
-        totalCost,
-        status,
-      } = req.body;
-
-      if (
-        !customerName ||
-        !phone ||
-        !address ||
-        !productName ||
-        !productPrice ||
-        !quantity ||
-        !totalCost
-      ) {
-        return res.status(400).json({ message: "All fields are required" });
-      }
-
+    // order post api
+    router.post("/orders", async (req, res) => {
       try {
-        const result = await orderCollections.insertOne({
-          customerName,
-          phone,
+        const {
+          name,
+          mobile,
+          division,
+          district,
+          upazila,
           address,
-          productName,
-          productPrice,
-          quantity,
-          courierFee,
-          totalCost,
-          orderDate: new Date(),
-          status: "pending",
-        });
+          cart,
+          total,
+        } = req.body;
 
-        res.json({
-          message: "Order placed successfully!",
-          insertedId: result.insertedId,
+        // Your existing validation and order processing code
+        if (
+          !name ||
+          !mobile ||
+          !division ||
+          !district ||
+          !upazila ||
+          !address ||
+          !cart ||
+          cart.length === 0
+        ) {
+          return res
+            .status(400)
+            .json({ success: false, message: "All fields are required" });
+        }
+
+        const orderData = {
+          name,
+          mobile,
+          division,
+          district,
+          upazila,
+          address,
+          cart,
+          total,
+          status: "pending",
+          orderDate: new Date(),
+        };
+
+        const result = await orderCollections.insertOne(orderData);
+
+        res.status(201).json({
+          success: true,
+          message: "Order placed successfully",
+          orderId: result.insertedId,
         });
       } catch (error) {
-        console.error("Error saving order data to MongoDB", error);
-        res.status(500).json({ message: "Failed to place the order" });
+        console.error("Error placing order:", error);
+        res
+          .status(500)
+          .json({ success: false, message: "Failed to place order" });
       }
     });
+
     // get dashboard orders table data
     app.get("/orders", async (req, res) => {
       const { status, page, limit } = req.query;
