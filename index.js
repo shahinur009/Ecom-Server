@@ -273,8 +273,8 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
       }
     });
 
-    // order post api
-    router.post("/orders", async (req, res) => {
+    // Order post API
+    app.post("/orders", async (req, res) => {
       try {
         const {
           name,
@@ -287,7 +287,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
           total,
         } = req.body;
 
-        // Your existing validation and order processing code
+        // Validation
         if (
           !name ||
           !mobile ||
