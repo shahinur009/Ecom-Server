@@ -472,24 +472,22 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
     // create video here
     app.post("/create-video", async (req, res) => {
-      console.log("Request received at /create-video");
-
       const { videos } = req.body;
-      if (!videos) {
+      if (!videos)
         return res.status(400).json({ message: "video URL is required" });
-      }
 
       try {
         const result = await videoCollections.insertOne({
           videos,
+          createdAt: new Date(),
         });
         res.json({
-          message: "video data saved successfully!",
+          message: "Video data saved successfully!",
           insertedId: result.insertedId,
         });
       } catch (error) {
         console.error("Error saving data to MongoDB", error);
-        res.status(500).json({ message: "Failed to save videos data" });
+        res.status(500).json({ message: "Failed to save video data" });
       }
     });
 
