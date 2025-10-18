@@ -13,14 +13,6 @@ app.use(
   })
 );
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "client", "build")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
-  });
-}
-
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
@@ -48,7 +40,7 @@ async function run() {
     const orderCollections = client.db("rab_Baby_Zone").collection("orders");
 
     // get users from db
-    app.post("api/login", async (req, res) => {
+    app.post("/login", async (req, res) => {
       console.log(req.body);
       const { email, password } = req.body;
       const user = await userCollections.findOne({ email });
@@ -73,6 +65,7 @@ async function run() {
 
     //Get card Data form Database
     app.get("/show-product", async (req, res) => {
+      console.log("show-product route hit!");
       try {
         const result = await productCollections.find().toArray();
         res.send(result);
@@ -451,6 +444,20 @@ async function run() {
 }
 
 run().catch(console.dir);
+
+app.get("/api/health", (req, res) => {
+  res.json({ message: "Server is running healthy!" });
+});
+
+// ✅ SERVE STATIC FILES - This should be AFTER API routes
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client", "build")));
+
+  // Catch-all handler for React Router - MUST BE LAST
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  });
+}
 
 app.get("/", (req, res) => {
   res.send("server is running on RAB-Baby-Zone");
