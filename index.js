@@ -133,7 +133,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // get users from db
-    app.post("/login", async (req, res) => {
+    app.post("/api/login", async (req, res) => {
       console.log(req.body);
       const { email, password } = req.body;
       const user = await userCollections.findOne({ email });
@@ -145,7 +145,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // add Product API
-    app.post("/add-product", async (req, res) => {
+    app.post("/api/add-product", async (req, res) => {
       try {
         const product = req.body;
         const result = await productCollections.insertOne(product);
@@ -157,7 +157,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //Get card Data form Database
-    app.get("/show-product", async (req, res) => {
+    app.get("/api/show-product", async (req, res) => {
       try {
         const result = await productCollections.find().toArray();
         res.send(result);
@@ -168,7 +168,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // dashboard stock show
-    app.get("/stock", async (req, res) => {
+    app.get("/api/stock", async (req, res) => {
       try {
         const { category, page, limit } = req.query;
         const query = category ? { category } : {};
@@ -191,7 +191,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //for details page
-    app.get("/show-product/:id", async (req, res) => {
+    app.get("/api/show-product/:id", async (req, res) => {
       const id = req.params.id;
       if (!ObjectId.isValid(id)) {
         return res.status(400).send({ error: "Invalid Product ID" });
@@ -210,7 +210,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
       }
     });
     // single order get by ID
-    app.get("/singleProduct/:id", async (req, res) => {
+    app.get("/api/singleProduct/:id", async (req, res) => {
       const id = req.params.id;
       if (!ObjectId.isValid(id)) {
         return res.status(400).send({ error: "Invalid Product ID" });
@@ -229,7 +229,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
       }
     });
     // Product delete API here:
-    app.delete("/delete/:id", async (req, res) => {
+    app.delete("/api/delete/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       try {
@@ -245,7 +245,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // Update product data
-    app.put("/updateProduct/:id", async (req, res) => {
+    app.put("/api/updateProduct/:id", async (req, res) => {
       const id = req.params.id;
       let updateData = req.body;
 
@@ -283,7 +283,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // Order post API
-    app.post("/orders", async (req, res) => {
+    app.post("/api/orders", async (req, res) => {
       try {
         const {
           name,
@@ -341,7 +341,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // get dashboard orders table data
-    app.get("/orders", async (req, res) => {
+    app.get("/api/orders", async (req, res) => {
       const { status, page, limit } = req.query;
       const query = status ? { status } : {};
 
@@ -357,7 +357,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // Delete dashboard order list
-    app.delete("/orders/:id", async (req, res) => {
+    app.delete("/api/orders/:id", async (req, res) => {
       const { id } = req.params;
 
       console.log("Received delete request for ID:", id);
@@ -382,7 +382,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // Banner section API's here:
-    app.post("/create-banner", async (req, res) => {
+    app.post("/api/create-banner", async (req, res) => {
       const { bannerImage } = req.body;
       if (!bannerImage) {
         return res.status(400).json({ message: "Image URL is required" });
@@ -401,7 +401,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // GET endpoint to fetch all banners
-    app.get("/get-banner", async (req, res) => {
+    app.get("/api/get-banner", async (req, res) => {
       try {
         const banners = await bannerCollections.find().toArray();
         res.json(banners);
@@ -412,7 +412,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //   Banner Deleted API's
-    app.delete("/banner-delete/:id", async (req, res) => {
+    app.delete("/api/banner-delete/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       try {
@@ -428,7 +428,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // create gallery here
-    app.post("/create-gallery", async (req, res) => {
+    app.post("/api/create-gallery", async (req, res) => {
       const { bannerImage } = req.body;
       if (!bannerImage) {
         return res.status(400).json({ message: "Image URL is required" });
@@ -449,7 +449,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // GET all gallery
-    app.get("/gallery", async (req, res) => {
+    app.get("/api/gallery", async (req, res) => {
       try {
         const gallery = await galleryCollections.find().toArray();
         res.json(gallery);
@@ -461,7 +461,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //   gallery Deleted API's
-    app.delete("/gallery-delete/:id", async (req, res) => {
+    app.delete("/api/gallery-delete/:id", async (req, res) => {
       const { id } = req.params;
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ message: "Invalid gallery ID" });
@@ -480,7 +480,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
       }
     });
     // create video here
-    app.post("/create-video", async (req, res) => {
+    app.post("/api/create-video", async (req, res) => {
       const { videos } = req.body;
       if (!videos)
         return res.status(400).json({ message: "video URL is required" });
@@ -501,7 +501,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // GET all video
-    app.get("/videos", async (req, res) => {
+    app.get("/api/videos", async (req, res) => {
       try {
         const video = await videoCollections.find().toArray();
         res.json(video);
@@ -513,7 +513,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //   video Deleted API's
-    app.delete("/video-delete/:id", async (req, res) => {
+    app.delete("/api/video-delete/:id", async (req, res) => {
       const { id } = req.params;
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ message: "Invalid video ID" });
