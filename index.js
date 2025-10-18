@@ -1,8 +1,8 @@
 const express = require("express");
+require("dotenv").config();
 const cors = require("cors");
 const app = express();
 const path = require("path");
-require("dotenv").config();
 
 app.use(express.json());
 app.use(
@@ -47,93 +47,8 @@ async function run() {
     const videoCollections = client.db("rab_Baby_Zone").collection("videos");
     const orderCollections = client.db("rab_Baby_Zone").collection("orders");
 
-    // Sitemap generator endpoint
-    app.get("/sitemap.xml", async (req, res) => {
-      try {
-        const products = await productCollections.find().toArray();
-
-        let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://rabbabyzone.com</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://rabbabyzone.com/login</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>`;
-
-        // Add product pages to sitemap
-        products.forEach((product) => {
-          sitemap += `
-  <url>
-    <loc>https://rabbabyzone.com/details/${product._id}</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>`;
-        });
-
-        sitemap += `
-</urlset>`;
-
-        res.header("Content-Type", "application/xml");
-        res.send(sitemap);
-      } catch (error) {
-        console.error("Error generating sitemap:", error);
-        res.status(500).send("Error generating sitemap");
-      }
-    });
-
-    // Robots.txt endpoint
-    app.get("/robots.txt", (req, res) => {
-      const robots = `User-agent: *
-Allow: /
-Sitemap: https://rabbabyzone.com/sitemap.xml`;
-
-      res.type("text/plain");
-      res.send(robots);
-    });
-
-    // Product metadata endpoint for SEO
-    app.get("/api/product-metadata/:id", async (req, res) => {
-      try {
-        const id = req.params.id;
-        if (!ObjectId.isValid(id)) {
-          return res.status(400).send({ error: "Invalid Product ID" });
-        }
-
-        const product = await productCollections.findOne({
-          _id: new ObjectId(id),
-        });
-
-        if (!product) {
-          return res.status(404).send({ error: "Product not found" });
-        }
-
-        const metadata = {
-          title: `${product.name} - RAB BABY ZONES`,
-          description:
-            product.details ||
-            `Buy ${product.name} from RAB BABY ZONES at best price`,
-          keywords: `${product.name}, ${product.category}, RAB BABY ZONES, online shopping`,
-          image: product.image,
-        };
-
-        res.json(metadata);
-      } catch (error) {
-        res
-          .status(500)
-          .send({ message: "Failed to fetch product metadata", error });
-      }
-    });
-
     // get users from db
-    app.post("/api/login", async (req, res) => {
+    app.post("api/login", async (req, res) => {
       console.log(req.body);
       const { email, password } = req.body;
       const user = await userCollections.findOne({ email });
@@ -145,7 +60,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // add Product API
-    app.post("/api/add-product", async (req, res) => {
+    app.post("/add-product", async (req, res) => {
       try {
         const product = req.body;
         const result = await productCollections.insertOne(product);
@@ -157,7 +72,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //Get card Data form Database
-    app.get("/api/show-product", async (req, res) => {
+    app.get("/show-product", async (req, res) => {
       try {
         const result = await productCollections.find().toArray();
         res.send(result);
@@ -168,7 +83,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // dashboard stock show
-    app.get("/api/stock", async (req, res) => {
+    app.get("/stock", async (req, res) => {
       try {
         const { category, page, limit } = req.query;
         const query = category ? { category } : {};
@@ -191,7 +106,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //for details page
-    app.get("/api/show-product/:id", async (req, res) => {
+    app.get("/show-product/:id", async (req, res) => {
       const id = req.params.id;
       if (!ObjectId.isValid(id)) {
         return res.status(400).send({ error: "Invalid Product ID" });
@@ -210,7 +125,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
       }
     });
     // single order get by ID
-    app.get("/api/singleProduct/:id", async (req, res) => {
+    app.get("/singleProduct/:id", async (req, res) => {
       const id = req.params.id;
       if (!ObjectId.isValid(id)) {
         return res.status(400).send({ error: "Invalid Product ID" });
@@ -229,7 +144,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
       }
     });
     // Product delete API here:
-    app.delete("/api/delete/:id", async (req, res) => {
+    app.delete("/delete/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       try {
@@ -245,7 +160,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // Update product data
-    app.put("/api/updateProduct/:id", async (req, res) => {
+    app.put("/updateProduct/:id", async (req, res) => {
       const id = req.params.id;
       let updateData = req.body;
 
@@ -283,7 +198,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // Order post API
-    app.post("/api/orders", async (req, res) => {
+    app.post("/orders", async (req, res) => {
       try {
         const {
           name,
@@ -341,7 +256,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // get dashboard orders table data
-    app.get("/api/orders", async (req, res) => {
+    app.get("/orders", async (req, res) => {
       const { status, page, limit } = req.query;
       const query = status ? { status } : {};
 
@@ -357,7 +272,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // Delete dashboard order list
-    app.delete("/api/orders/:id", async (req, res) => {
+    app.delete("/orders/:id", async (req, res) => {
       const { id } = req.params;
 
       console.log("Received delete request for ID:", id);
@@ -382,7 +297,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // Banner section API's here:
-    app.post("/api/create-banner", async (req, res) => {
+    app.post("/create-banner", async (req, res) => {
       const { bannerImage } = req.body;
       if (!bannerImage) {
         return res.status(400).json({ message: "Image URL is required" });
@@ -401,7 +316,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // GET endpoint to fetch all banners
-    app.get("/api/get-banner", async (req, res) => {
+    app.get("/get-banner", async (req, res) => {
       try {
         const banners = await bannerCollections.find().toArray();
         res.json(banners);
@@ -412,7 +327,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //   Banner Deleted API's
-    app.delete("/api/banner-delete/:id", async (req, res) => {
+    app.delete("/banner-delete/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       try {
@@ -428,7 +343,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // create gallery here
-    app.post("/api/create-gallery", async (req, res) => {
+    app.post("/create-gallery", async (req, res) => {
       const { bannerImage } = req.body;
       if (!bannerImage) {
         return res.status(400).json({ message: "Image URL is required" });
@@ -449,7 +364,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // GET all gallery
-    app.get("/api/gallery", async (req, res) => {
+    app.get("/gallery", async (req, res) => {
       try {
         const gallery = await galleryCollections.find().toArray();
         res.json(gallery);
@@ -461,7 +376,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //   gallery Deleted API's
-    app.delete("/api/gallery-delete/:id", async (req, res) => {
+    app.delete("/gallery-delete/:id", async (req, res) => {
       const { id } = req.params;
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ message: "Invalid gallery ID" });
@@ -480,7 +395,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
       }
     });
     // create video here
-    app.post("/api/create-video", async (req, res) => {
+    app.post("/create-video", async (req, res) => {
       const { videos } = req.body;
       if (!videos)
         return res.status(400).json({ message: "video URL is required" });
@@ -501,7 +416,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     // GET all video
-    app.get("/api/videos", async (req, res) => {
+    app.get("/videos", async (req, res) => {
       try {
         const video = await videoCollections.find().toArray();
         res.json(video);
@@ -513,7 +428,7 @@ Sitemap: https://rabbabyzone.com/sitemap.xml`;
     });
 
     //   video Deleted API's
-    app.delete("/api/video-delete/:id", async (req, res) => {
+    app.delete("/video-delete/:id", async (req, res) => {
       const { id } = req.params;
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ message: "Invalid video ID" });
